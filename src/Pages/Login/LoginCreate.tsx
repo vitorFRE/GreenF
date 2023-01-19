@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { api } from '../../services/api';
 import { Input } from '../../components/Forms/Input';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 import styled from 'styled-components';
 import GreenF from '../../assets/GreenF.svg';
 import levia from '../../assets/levia.png';
@@ -16,19 +18,44 @@ interface FormData {
   cpassword: string;
 }
 
+const validationSchema = yup.object().shape({
+  name: yup
+    .string()
+    .required('O nome é obrigatório')
+    .min(3, 'Nome precisa de no minimo 3 letras'),
+  email: yup.string().required('O email é obrigatório').email('Email inválido'),
+  password: yup
+    .string()
+    .required('A senha é obrigatória')
+    .min(8, 'A senha deve conter pelo menos 8 caracteres')
+    .matches(
+      /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
+      'A senha deve conter pelo menos uma letra e um número',
+    ),
+  cpassword: yup
+    .string()
+    .oneOf([yup.ref('password'), null], 'As senhas não coincidem')
+    .required('A senha é obrigatória')
+    .min(8, 'A senha deve conter pelo menos 8 caracteres')
+    .matches(
+      /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
+      'A senha deve conter pelo menos uma letra e um número',
+    ),
+});
+
 export const LoginCreate = () => {
   const [passworderror, setPassworderror] = useState('');
 
   const {
     register,
-    watch,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>();
+  } = useForm<FormData>({
+    resolver: yupResolver(validationSchema),
+  });
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
     if (data.password !== data.cpassword) {
-      setPassworderror('As senhas não são iguais.');
       return;
     }
     console.log(data);
@@ -63,73 +90,32 @@ export const LoginCreate = () => {
             icon={MdVerifiedUser}
             label="name"
             register={register}
-            required
           />
-          {errors.name?.type === 'required' && (
-            <p className="cap">O nome é obrigatório</p>
-          )}
+          <p className="cap">{errors.name?.message}</p>
 
           <Input
             placeholder="Email"
             icon={MdEmail}
             label="email"
             register={register}
-            required
-            pattern={
-              /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
-            }
           />
-          {errors.email?.type === 'required' && (
-            <p className="cap">O email é obrigatório</p>
-          )}
-
-          {errors.email?.type === 'pattern' && (
-            <p className="cap">Email inválido</p>
-          )}
+          <p className="cap">{errors.email?.message}</p>
 
           <Input
             placeholder="Senha"
             icon={MdPassword}
             label="password"
             register={register}
-            required
-            minLength={8}
-            pattern={/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/}
           />
-          {errors.password?.type === 'required' && (
-            <p className="cap">A senha é obrigatória</p>
-          )}
-          {errors.password?.type === 'pattern' && (
-            <p className="cap">
-              A senha deve conter pelo menos uma letra e um número
-            </p>
-          )}
-          {errors.password?.type === 'minLength' && (
-            <p className="cap">A senha deve conter pelo menos 8 caracteres</p>
-          )}
-          {passworderror && <p className="cap">{passworderror}</p>}
+          <p className="cap">{errors.password?.message}</p>
 
           <Input
             placeholder="Confirme sua senha"
             icon={MdPassword}
             register={register}
             label="cpassword"
-            required
-            minLength={8}
-            pattern={/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/}
           />
-          {errors.cpassword?.type === 'required' && (
-            <p className="cap">A senha é obrigatória</p>
-          )}
-          {errors.cpassword?.type === 'pattern' && (
-            <p className="cap">
-              A senha deve conter pelo menos uma letra e um número
-            </p>
-          )}
-          {errors.cpassword?.type === 'minLength' && (
-            <p className="cap">A senha deve conter pelo menos 8 caracteres</p>
-          )}
-          {passworderror && <p className="cap">{passworderror}</p>}
+          <p className="cap">{errors.cpassword?.message}</p>
 
           <button type="submit" className="b1">
             ENTRAR
