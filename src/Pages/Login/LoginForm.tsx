@@ -1,25 +1,41 @@
 import React, { useState } from 'react';
-import { Input } from '../../components/Forms/Input';
-import styled from 'styled-components';
-import GreenF from '../../assets/GreenF.svg';
-import levia from '../../assets/levia.png';
-import { MdEmail, MdPassword } from 'react-icons/md';
-import { device } from '../../styles/BreackPoints';
 import { Link } from 'react-router-dom';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import styled from 'styled-components';
+
+import GreenF from '../../assets/GreenF.svg';
+import levia from '../../assets/levia.png';
+import { Input } from '../../components/Forms/Input';
+import { MdEmail, MdPassword } from 'react-icons/md';
+import { device } from '../../styles/BreackPoints';
 
 interface FormData {
   email: string;
   password: string;
 }
 
+const validationSchema = yup.object().shape({
+  email: yup.string().required('O email é obrigatório').email('Email inválido'),
+  password: yup
+    .string()
+    .required('A senha é obrigatória')
+    .min(8, 'A senha deve conter pelo menos 8 caracteres')
+    .matches(
+      /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
+      'A senha deve conter pelo menos uma letra e um número',
+    ),
+});
+
 export const LoginForm = () => {
   const {
     register,
-    watch,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>();
+  } = useForm<FormData>({
+    resolver: yupResolver(validationSchema),
+  });
 
   const onSubmit: SubmitHandler<FormData> = (data) => console.log(data);
 
@@ -47,38 +63,17 @@ export const LoginForm = () => {
             icon={MdEmail}
             label="email"
             register={register}
-            required
-            pattern={
-              /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
-            }
           />
-          {errors.email?.type === 'required' && (
-            <p className="cap">O email é obrigatório</p>
-          )}
-          {errors.email?.type === 'pattern' && (
-            <p className="cap">Email inválido</p>
-          )}
+          <p className="cap">{errors.email?.message}</p>
+
           <Input
             className="second_input"
             placeholder="Senha"
             icon={MdPassword}
             label="password"
             register={register}
-            required
-            minLength={8}
-            pattern={/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/}
           />
-          {errors.password?.type === 'required' && (
-            <p className="cap">A senha é obrigatória</p>
-          )}
-          {errors.password?.type === 'pattern' && (
-            <p className="cap">
-              A senha deve conter pelo menos uma letra e um número
-            </p>
-          )}
-          {errors.password?.type === 'minLength' && (
-            <p className="cap">A senha deve conter pelo menos 8 caracteres</p>
-          )}
+          <p className="cap">{errors.password?.message}</p>
 
           <button className="b1" type="submit">
             ENTRAR
