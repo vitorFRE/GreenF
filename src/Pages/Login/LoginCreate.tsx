@@ -44,8 +44,6 @@ const validationSchema = yup.object().shape({
 });
 
 export const LoginCreate = () => {
-  const [passworderror, setPassworderror] = useState('');
-
   const {
     register,
     handleSubmit,
