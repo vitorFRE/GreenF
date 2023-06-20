@@ -8,7 +8,7 @@ import GreenF from '../../assets/GreenF.svg';
 import levia from '../../assets/levia.png';
 import { MdEmail, MdPassword, MdVerifiedUser } from 'react-icons/md';
 import { device } from '../../styles/BreackPoints';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
 interface FormData {
@@ -44,9 +44,12 @@ const validationSchema = yup.object().shape({
 });
 
 export const LoginCreate = () => {
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<FormData>({
     resolver: yupResolver(validationSchema),
@@ -56,7 +59,26 @@ export const LoginCreate = () => {
     if (data.password !== data.cpassword) {
       return;
     }
-    console.log(data);
+
+    const newData = {
+      email: data.email,
+      name: data.name,
+      password: data.password,
+    };
+
+    api
+      .post('/users', newData)
+      .then(() => {
+        alert('cadastrado');
+        navigate('/');
+      })
+      .catch((error) => {
+        if (error.response) {
+          alert(error.response.data.message);
+        } else {
+          alert('Não foi possivel cadastrar');
+        }
+      });
   };
 
   return (

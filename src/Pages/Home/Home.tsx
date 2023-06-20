@@ -1,8 +1,15 @@
-import React from 'react';
-import styled from 'styled-components';
+import React from 'react'
+import styled from 'styled-components'
+import { useAuth } from '../../hooks/auth'
 
 export const Home = () => {
-  return <div>Home</div>;
-};
+	const { signOut } = useAuth()
+	return (
+		<>
+			<h1>oi</h1>
+			<button onClick={signOut}>LogOut</button>
+		</>
+	)
+}
 
-const Container = styled.main``;
+const Container = styled.main``

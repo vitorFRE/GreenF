@@ -4,7 +4,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import styled from 'styled-components';
-
+import { useAuth } from '../../hooks/auth';
 import GreenF from '../../assets/GreenF.svg';
 import levia from '../../assets/levia.png';
 import { Input } from '../../components/Forms/Input';
@@ -37,7 +37,10 @@ export const LoginForm = () => {
     resolver: yupResolver(validationSchema),
   });
 
-  const onSubmit: SubmitHandler<FormData> = (data) => console.log(data);
+  const { signIn } = useAuth();
+  const onSubmit: SubmitHandler<FormData> = (data) => {
+    signIn(data);
+  };
 
   return (
     <Container>
